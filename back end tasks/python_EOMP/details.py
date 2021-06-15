@@ -2,6 +2,10 @@
 # coded by Uthmaan Breda.
 
 from tkinter import *
+from tkinter import messagebox
+from datetime import datetime, timedelta
+import re
+import rsaidnumber
 import random
 
 root = Tk()
@@ -12,57 +16,67 @@ root.title('LOGIN')
 result = StringVar()
 
 
-Label(root, text='Name:').place(x=10, y=30)
-user_ent = Entry(root)
-user_ent.place(x=150, y=30)
-user_ent.focus()
-Label(root, text='Email:').place(x=10, y=80)
-email_ent = Entry(root)
-email_ent.place(x=150, y=80)
-Label(root, text='ID Number:').place(x=10, y=130)
-id_ent = Entry(root)
-id_ent.place(x=150, y=130)
-results = Label(root, text='', textvariable=result).place(x=150, y=230)
+class Login:
+    
+    def __init__(self, master):
+        
+        self.user_lab = Label(master, text='Name:').place(x=10, y=30)
+        self.user_ent = Entry(master)
+        self.user_ent.place(x=150, y=30)
+        self.user_ent.focus()
+        self.email_lab = Label(master, text='Email:').place(x=10, y=80)
+        self.email_ent = Entry(master)
+        self.email_ent.place(x=150, y=80)
+        self.id_lab = Label(master, text='ID Number:').place(x=10, y=130)
+        self.id_ent = Entry(master)
+        self.id_ent.place(x=150, y=130)
+        self.results = Label(master, text='', textvariable=result).place(x=150, y=230)
+        self.log_btn = Button(master, text='Login', command=self.id_info).place(x=150, y=180)
+        self.exit_btn = Button(master, text='Exit').place(x=130, y=280)
+        self.clr_btn = Button(master, text='Clear').place(x=230, y=280)
+
+    def email_info(self):
+        ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
+
+        for i in range(len(self.email_ent.get())):
+            if re.search(ex, self.email_ent.get()):
+                with open("details.txt", "w+") as f:
+                    f.write(self.user_ent.get())
+                    f.write('\n')
+                    f.write(self.email_ent.get())
+                    f.write('\n')
+                    f.write(self.id_ent.get())
+                    f.write('\n')
+
+            else:
+                messagebox.showerror("Error", "Invalid Email")
+                root.destroy()
+
+    def id_info(self):
+        self.email_info()
+        id_number = rsaidnumber.parse(self.id_ent.get())
+        dob = id_number.date_of_birth
+        age = (datetime.today() - dob) // timedelta(365.245)
+
+        try:
+            if age >= 18:
+                messagebox.showinfo('Status', 'Let\'s Play!')
+                root.destroy()
+
+            elif len(self.id_ent.get()) != 13:
+                messagebox.showerror("Error", "Not a valid ID number")
+                root.destroy()
+
+            else:
+                messagebox.showinfo('ERROR', 'UNDERAGE!!! GO PLAY MARBLES OUTSIDE')
+                root.destroy()
+
+        except ValueError:
+            if self.id_ent.get() != int:
+                messagebox.showerror("Error!!!!!!!!", "The id number MUST be Integers only")
 
 
-def login():
-    f = open('details.txt', 'w')
-    f.write(user_ent.get())
-    f.write('\n')
-    f.write(email_ent.get())
-    f.write('\n')
-    f.write(id_ent.get())
-
-    # function to generate random numbers without repeating
-    def gen_num():
-        x = 0
-        list_1 = []
-        while x < 6:
-            r = random.randint(1, 42)
-            if r not in list_1:
-                list_1.append(r)
-                x = x + 1
-        else:  # the reason for adding the else statement is coz when it runs the 6th time and the number is the same,
-            x = x - 1  # it just prints 5 numbers
-        list_1.sort()
-        f.write(str(list_1))
-
-
-def kill():
-    root.destroy()
-
-
-def clear():
-    user_ent.delete(0, END)
-    email_ent.delete(0, END)
-    id_ent.delete(0, END)
-    result.set('')
-
-
-Button(root, text='Login', command=login).place(x=150, y=180)
-Button(root, text='Exit', command=kill).place(x=130, y=280)
-Button(root, text='Clear', command=clear).place(x=230, y=280)
-
+log_win = Login(root)
 root.mainloop()
 
 
