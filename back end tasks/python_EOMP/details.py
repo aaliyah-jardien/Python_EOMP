@@ -36,10 +36,10 @@ class Login:
         self.clr_btn = Button(master, text='Clear').place(x=230, y=280)
 
     def email_info(self):
-        ex = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
+        expr = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$"
 
         for i in range(len(self.email_ent.get())):
-            if re.search(ex, self.email_ent.get()):
+            if re.search(expr, self.email_ent.get()):
                 with open("details.txt", "w+") as f:
                     f.write(self.user_ent.get())
                     f.write('\n')
